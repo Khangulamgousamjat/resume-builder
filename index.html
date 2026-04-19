@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Simple Resume Form -->
+        <div id="resume-form-page" class="page active">
+            <div class="form-container">
+                <div class="form-header">
+                    <div style="display: flex; align-items: center; gap: 15px; justify-content: center; margin-bottom: 10px;">
+                        <svg width="60" height="60" viewBox="0 0 60 60" style="drop-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <!-- Resume PDF Logo -->
+                            <defs>
+                                <linearGradient id="pdfGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#C23B6E;stop-opacity:1" />
+                                </linearGradient>
+                                <linearGradient id="docGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#FF00FF;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#00D4FF;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#0066FF;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <!-- Document with fold -->
+                            <path d="M 10 8 L 35 8 L 42 15 L 42 50 Q 42 52 40 52 L 12 52 Q 10 52 10 50 Z" fill="url(#docGradient)" stroke="none"/>
+                            <!-- User icon inside -->
+                            <circle cx="26" cy="22" r="4" fill="#ffffff" opacity="0.9"/>
+                            <path d="M 20 28 Q 20 25 26 25 Q 32 25 32 28 L 32 32 Q 32 33 31 33 L 21 33 Q 20 33 20 32 Z" fill="#ffffff" opacity="0.9"/>
+                            <!-- Dash lines -->
+                            <line x1="21" y1="38" x2="31" y2="38" stroke="#ffffff" stroke-width="0.8" opacity="0.8"/>
+                            <line x1="21" y1="42" x2="31" y2="42" stroke="#ffffff" stroke-width="0.8" opacity="0.8"/>
+                            <!-- PDF Badge -->
+                            <rect x="30" y="38" width="18" height="16" rx="3" fill="url(#pdfGradient)"/>
+                            <text x="39" y="50" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white" text-anchor="middle">PDF</text>
+                        </svg>
+                        <h1 style="margin: 0; font-size: 32px;">Resume Builder</h1>
+                    </div>
+                    <p>Fill your details and download PDF directly</p>
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="theme-toggle" aria-label="Toggle dark mode">
+                        <span class="toggle-track">
+                            <span class="toggle-thumb"></span>
+                        </span>
+                        <span class="theme-toggle-label">Dark mode</span>
+                    </label>
+                </div>
+                <form id="resume-form">
+                    <h2 id="template-heading">Choose Template</h2>
+                    <div class="template-picker-head">
+                        <p>Select a professional template for your resume to get started</p>
+                        <span class="template-count-pill"><strong id="template-count">Ready Template </strong></span>
+                    </div>
+                    <div class="template-selection-notice">
+                        <span class="notice-icon">👇</span>
+                        <p>Click on any template below to select it and continue filling your details</p>
+                    </div>
+                    <div class="template-preview" id="template-grid">
+                        <!-- Templates will be injected here -->
+                    </div>
+                    <select id="resume-template" style="display: none;"></select>
+                    
+                    <!-- Form sections - Initially hidden -->
+                    <div id="form-sections" style="display: none;">
+                    <div class="selected-template-info">
+                        <div class="selected-template-text">
+                            <span class="selected-icon">✓</span>
+                            <span>Template Selected - Now fill in your details below</span>
+                        </div>
+                        <button type="button" id="change-template-btn" class="change-template-btn" onclick="goBackToTemplates()">🔄 Change Template</button>
+                    </div>
+                    <h2>Personal Information</h2>
+                    <div class="input-group-full">
+                        <label for="photo-upload" style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <span style="font-weight: 600; font-size: 15px;">Profile Photo (Optional)</span>
+                            <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 8px 18px; border-radius: 6px; font-size: 13px; color: white; border: none; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.5)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)'; this.style.transform='translateY(0)';">
+                                <input type="file" id="photo-upload" accept="image/*" style="display: none;" />
+                                <span style="cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="document.getElementById('photo-upload').click(); return false;">📁 Choose File</span>
+                            </span>
+                            <span id="photo-upload-status" style="color: #999; font-size: 13px; font-weight: 500;">No file chosen</span>
+                        </label>
+                        <small style="color: #888; display: block; margin-top: 6px;">📸 Upload a professional photo (JPG, PNG, GIF)</small>
+                        <div id="photo-preview" style="margin-top: 10px; max-width: 150px;"></div>
+                    </div>
+                    <div class="input-group-full">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" placeholder="Your Name">
+                    </div>
+                    <div class="input-group-full">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" placeholder="City, Country">
+                    </div>
+                    
+                    <h2>Contact Information</h2>
+                    <div class="input-grid three-col">
+                        <div class="input-group-full">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="e.g., +91 1234567890">
+                        </div>
+                        <div class="input-group-full">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="your.email@example.com">
+                        </div>
+                        <div class="input-group-full">
+                            <label for="linkedin">LinkedIn URL</label>
+                            <input type="url" id="linkedin" placeholder="linkedin.com/in/yourname">
+                        </div>
+                    </div>
+                    
+                    <h2>Career Objective</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <textarea id="objective" placeholder="Your career objective..." rows="3" style="flex: 1;"></textarea>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <button type="button" id="ai-improve-objective" class="submit-btn" style="padding: 8px 12px; font-size: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: none;">✨ Improve</button>
+                            <small style="text-align: center; font-size: 10px; color: #666;">AI Tools</small>
+                        </div>
+                    </div>
+                    
+                    <h2>Languages</h2>
+                    <div class="input-group-full">
+                        <textarea id="languages" placeholder="List languages you speak (e.g., Hindi, English, Marathi)" rows="2"></textarea>
+                        <small>Add languages you are fluent in</small>
+                    </div>
+                    
+                    <h2>Hobbies & Interests</h2>
+                    <div class="input-group-full">
+                        <textarea id="hobbies" placeholder="List your hobbies and interests (comma separated)" rows="2"></textarea>
+                        <small>Add personal hobbies to make your resume stand out</small>
+                    </div>
+                    
+                    <!-- Skills AI Tools -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start;" id="skills-ai-section" style="display: none;">
+                        <button type="button" id="ai-generate-skills" class="submit-btn" style="padding: 8px 12px; font-size: 12px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); margin-top: 10px; display: none;">💡 Generate Skills</button>
+                    </div>
+                    
+                    <div id="draggable-sections" class="draggable-sections-container">
+                        <!-- Education -->
+                        <div class="draggable-section" data-section="education">
+                            <div class="section-handle">☰ Education</div>
+                            <h2>Education</h2>
+                            <div id="education-section">
+                                <div class="education-entry">
+                                    <div class="input-with-label">
+                                        <label>Institution Name</label>
+                                        <input type="text" class="institution" placeholder="e.g., Mumbai University">
+                                    </div>
+                                    <div class="input-with-label">
+                                        <label>Degree</label>
+                                        <input type="text" class="degree" placeholder="e.g., Bachelor of Engineering">
+                                    </div>
+                                    <div class="input-with-label">
+                                        <label>Grade/CGPA</label>
+                                        <input type="text" class="grade" placeholder="e.g., 8.5 CGPA or 85%">
+                                    </div>
+                                    <div class="input-with-label">
+                                        <label>Year</label>
+                                        <input type="text" class="year" placeholder="e.g., 2020-2024">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-education" class="add-btn">+ Add Education</button>
+                        </div>
+                        
+                        <!-- Skills -->
+                        <div class="draggable-section" data-section="skills">
+                            <div class="section-handle">☰ Skills</div>
+                            <h2>Skills</h2>
+                            <div class="input-with-label">
+                                <label>Your Skills (comma separated)</label>
+                                <textarea id="skills" placeholder="e.g., JavaScript, React, Node.js, Python, Data Analysis" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Experience -->
+                        <div class="draggable-section" data-section="experience">
+                            <div class="section-handle">☰ Experience</div>
+                            <h2>Experience</h2>
+                            <div id="experience-section">
+                                <div class="experience-entry">
+                                    <div class="input-with-label">
+                                        <label>Job Title</label>
+                                        <input type="text" class="job-title" placeholder="e.g., Software Engineer">
+                                    </div>
+                                    <div class="input-with-label">
+                                        <label>Company</label>
+                                        <input type="text" class="company" placeholder="e.g., Google India">
+                                    </div>
+                                    <div class="input-with-label">
+                                        <label>Duration</label>
+                                        <input type="text" class="duration" placeholder="e.g., Jan 2022 - Present">
+                                    </div>
+                                    <div class="input-with-label">
+                                        <label>Description</label>
+                                        <textarea class="job-description" placeholder="Describe your responsibilities and achievements" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-experience" class="add-btn">+ Add Experience</button>
+                        </div>
+                        
+                        <!-- Projects -->
+                        <div class="draggable-section" data-section="projects">
+                            <div class="section-handle">☰ Projects</div>
+                            <h2>Projects</h2>
+                            <div id="projects-section">
+                                <div class="project-entry">
+                                    <div class="input-with-label">
+                                        <label>Project Title</label>
+                                        <input type="text" class="project-title" placeholder="e.g., E-commerce Website">
+                                    </div>
+                                    <div class="input-with-label">
+                                        <label>Project Description</label>
+                                        <textarea class="project-description" placeholder="Describe your project, technologies used, and outcomes" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-project" class="add-btn">+ Add Project</button>
+                        </div>
+                        
+                        <!-- Achievements -->
+                        <div class="draggable-section" data-section="achievements">
+                            <div class="section-handle">☰ Achievements</div>
+                            <h2>Achievements</h2>
+                            <div id="achievements-section">
+                                <div class="achievement-entry">
+                                    <div class="input-with-label">
+                                        <label>Achievement or Certification</label>
+                                        <input type="text" class="achievement" placeholder="e.g., Certified AWS Solutions Architect">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" id="add-achievement" class="add-btn">+ Add Achievement</button>
+                        </div>
+                    </div>
+                    </div>
+                    <!-- End of form-sections -->
+                    
+                    <button type="submit" class="submit-btn">📥 Download as PDF</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Template Preview Modal -->
+        <div id="preview-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Template Preview</h2>
+                <p>This is how your resume will look with this template:</p>
+                <div id="template-preview-content"></div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-content">
+                <p class="footer-text">Made By <strong>Gous Khan</strong></p>
+                <p class="footer-copyright">&copy; 2025 Resume Builder. All rights reserved.</p>
+            </div>
+        </footer>
+        
+        <!-- PDF Libraries -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script src="simple-script.js"></script>
+    </body>
+    </html>
