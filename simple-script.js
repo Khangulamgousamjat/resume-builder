@@ -433,23 +433,15 @@ function setupChangeTemplateButton() {
 
 // Simple function for onclick handler
 function goBackToTemplates() {
-    // Show template selection section and hide form sections
     const templateSection = document.querySelector('.template-preview');
-    const templateNotice = document.querySelector('.template-selection-notice');
-    const templateHeader = document.getElementById('template-heading');
     const templatePickerHead = document.querySelector('.template-picker-head');
     const formSections = document.getElementById('form-sections');
 
-    // Show template elements
+    // Show template grid, hide form
     if (templateSection) templateSection.style.display = 'grid';
-    if (templateNotice) templateNotice.style.display = 'block';
-    if (templateHeader) templateHeader.style.display = 'block';
-    if (templatePickerHead) templatePickerHead.style.display = 'flex';
-
-    // Hide form sections
+    if (templatePickerHead) templatePickerHead.style.display = 'block'; // block not flex
     if (formSections) formSections.style.display = 'none';
 
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -506,7 +498,9 @@ function closePreview() {
 function setupThemeToggle() {
     if (!elements.themeToggle) return;
 
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) === 'dark' ? 'dark' : 'light';
+    // Read saved theme; if nothing saved, default to DARK (body starts with dark-mode class)
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    const savedTheme = saved ? saved : 'dark';
     applyTheme(savedTheme);
     elements.themeToggle.checked = savedTheme === 'dark';
 
@@ -658,7 +652,9 @@ function setupDynamicFields() {
 
     if (addAchievementBtn) {
         addAchievementBtn.addEventListener('click', () => {
-            const section = document.getElementById('achievements-section');
+            // BUG FIX: HTML uses id="achievement-section" not "achievements-section"
+            const section = document.getElementById('achievement-section');
+            if (!section) return;
             const entry = document.createElement('div');
             entry.className = 'achievement-entry';
             entry.innerHTML = `
@@ -950,15 +946,14 @@ function setupDraggableSections() {
 }
 
 function setupAutosave() {
-    const form = document.getElementById('resume-form');
-    if (!form) return;
-
-    form.addEventListener('input', () => {
-        // Debounce autosave
-        clearTimeout(autosaveTimer);
-        autosaveTimer = setTimeout(() => {
-            saveToLocalStorage();
-        }, 300);
+    // Attach to document-level input events since #resume-form doesn't exist
+    document.addEventListener('input', (e) => {
+        if (e.target.closest('#form-sections')) {
+            clearTimeout(autosaveTimer);
+            autosaveTimer = setTimeout(() => {
+                saveToLocalStorage();
+            }, 500);
+        }
     });
 }
 
@@ -1048,7 +1043,8 @@ function loadFromLocalStorage() {
             sectionOrder = data.sectionOrder;
         }
 
-        // Restore hobbies
+        // Restore basic fields
+        if (data.fullName) document.getElementById('full-name').value = data.fullName;
         if (data.hobbies) document.getElementById('hobbies').value = data.hobbies;
         if (data.languages) document.getElementById('languages').value = data.languages;
         if (data.location) document.getElementById('location').value = data.location;
@@ -1115,18 +1111,24 @@ function loadFromLocalStorage() {
 
         // Restore achievements
         if (data.achievements && data.achievements.length > 0) {
-            const achSection = document.getElementById('achievements-section');
-            achSection.innerHTML = '';
-            data.achievements.forEach(ach => {
-                const entry = document.createElement('div');
-                entry.className = 'achievement-entry';
-                entry.innerHTML = `
-                    <input type="text" class="achievement" placeholder="Achievement or Certification" value="${ach}">
-                    <button type="button" class="remove-btn">Remove</button>
-                `;
-                achSection.appendChild(entry);
-                entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
-            });
+            // BUG FIX: use 'achievement-section' (matches HTML id)
+            const achSection = document.getElementById('achievement-section');
+            if (achSection) {
+                achSection.innerHTML = '';
+                data.achievements.forEach(ach => {
+                    const entry = document.createElement('div');
+                    entry.className = 'achievement-entry';
+                    entry.innerHTML = `
+                        <div class="material-input">
+                            <input type="text" class="achievement" placeholder=" " value="${ach}">
+                            <label>Achievement or Certification</label>
+                        </div>
+                        <button type="button" class="btn-secondary remove-btn">Remove</button>
+                    `;
+                    achSection.appendChild(entry);
+                    entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
+                });
+            }
         }
     } catch (e) {
         console.error('Error loading from localStorage:', e);

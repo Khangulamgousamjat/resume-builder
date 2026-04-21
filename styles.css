@@ -28,7 +28,7 @@ body {
     display: none;
     width: 100%;
     min-height: 100vh;
-    padding: 40px 20px;
+    padding: 0; /* Removed - neon-final.css handles spacing */
 }
 
 .page.active {
