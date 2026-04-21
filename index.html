@@ -4,267 +4,242 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Builder</title>
-    <link rel="stylesheet" href="styles.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="neon-final.css">
 </head>
-<body>
+<body class="dark-mode">
+
+    <div id="loader-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; color: white; backdrop-filter: blur(10px);">
+        <div class="spinner" style="width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 24px; font-family: 'Space Grotesk', sans-serif; letter-spacing: 4px; font-weight: 700; color: var(--primary-color);">SYSTEM INITIALIZING...</p>
+    </div>
+
+    <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+
+    <div class="theme-switch-wrapper">
+        <label class="switch">
+            <input type="checkbox" id="theme-toggle" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="header">
+        <h1>Resume Builder</h1>
+        <p>Kinetic Blueprint V2.0</p>
+    </div>
+
     <div id="app">
-        <!-- Simple Resume Form -->
-        <div id="resume-form-page" class="page active">
-            <div class="form-container">
-                <div class="form-header">
-                    <div style="display: flex; align-items: center; gap: 15px; justify-content: center; margin-bottom: 10px;">
-                        <svg width="60" height="60" viewBox="0 0 60 60" style="drop-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <!-- Resume PDF Logo -->
-                            <defs>
-                                <linearGradient id="pdfGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#C23B6E;stop-opacity:1" />
-                                </linearGradient>
-                                <linearGradient id="docGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#FF00FF;stop-opacity:1" />
-                                    <stop offset="50%" style="stop-color:#00D4FF;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#0066FF;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <!-- Document with fold -->
-                            <path d="M 10 8 L 35 8 L 42 15 L 42 50 Q 42 52 40 52 L 12 52 Q 10 52 10 50 Z" fill="url(#docGradient)" stroke="none"/>
-                            <!-- User icon inside -->
-                            <circle cx="26" cy="22" r="4" fill="#ffffff" opacity="0.9"/>
-                            <path d="M 20 28 Q 20 25 26 25 Q 32 25 32 28 L 32 32 Q 32 33 31 33 L 21 33 Q 20 33 20 32 Z" fill="#ffffff" opacity="0.9"/>
-                            <!-- Dash lines -->
-                            <line x1="21" y1="38" x2="31" y2="38" stroke="#ffffff" stroke-width="0.8" opacity="0.8"/>
-                            <line x1="21" y1="42" x2="31" y2="42" stroke="#ffffff" stroke-width="0.8" opacity="0.8"/>
-                            <!-- PDF Badge -->
-                            <rect x="30" y="38" width="18" height="16" rx="3" fill="url(#pdfGradient)"/>
-                            <text x="39" y="50" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white" text-anchor="middle">PDF</text>
-                        </svg>
-                        <h1 style="margin: 0; font-size: 32px;">Resume Builder</h1>
-                    </div>
-                    <p>Fill your details and download PDF directly</p>
-                    <label class="theme-toggle">
-                        <input type="checkbox" id="theme-toggle" aria-label="Toggle dark mode">
-                        <span class="toggle-track">
-                            <span class="toggle-thumb"></span>
-                        </span>
-                        <span class="theme-toggle-label">Dark mode</span>
-                    </label>
+        <!-- Template Selection Page -->
+        <div id="template-selection" class="page active" style="flex-direction: column; align-items: center;">
+            <div class="container" style="max-width: 1200px; width: 95%;">
+                <div class="template-picker-head" style="text-align: center; margin-bottom: 40px;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 12px; border: none;">Select Your Blueprint</h2>
+                    <p style="opacity: 0.7; font-size: 1.1rem;">Choose a starting architecture for your professional identity</p>
+                    <div class="template-count-pill" style="display: inline-block; margin-top: 16px; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">4 BLUEPRINTS AVAILABLE</div>
                 </div>
-                <form id="resume-form">
-                    <h2 id="template-heading">Choose Template</h2>
-                    <div class="template-picker-head">
-                        <p>Select a professional template for your resume to get started</p>
-                        <span class="template-count-pill"><strong id="template-count">Ready Template </strong></span>
-                    </div>
-                    <div class="template-selection-notice">
-                        <span class="notice-icon">👇</span>
-                        <p>Click on any template below to select it and continue filling your details</p>
-                    </div>
-                    <div class="template-preview" id="template-grid">
-                        <!-- Templates will be injected here -->
-                    </div>
-                    <select id="resume-template" style="display: none;"></select>
+                
+                <div class="template-preview" id="template-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; max-width: 1600px; width: 95%; margin-bottom: 40px;">
+                </div>
+                <select id="resume-template" style="display: none;"></select>
+
+                <div id="form-sections" style="display: none; width: 100%; align-items: center; flex-direction: column;">
                     
-                    <!-- Form sections - Initially hidden -->
-                    <div id="form-sections" style="display: none;">
-                    <div class="selected-template-info">
-                        <div class="selected-template-text">
-                            <span class="selected-icon">✓</span>
-                            <span>Template Selected - Now fill in your details below</span>
+                    <div class="template-status-bar" style="max-width: 800px; width: 90%; display: flex; justify-content: space-between; align-items: center; margin: 10px auto 24px auto; background: var(--card-bg); padding: 16px 24px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--card-shadow); box-sizing: border-box;">
+                        <span style="color: var(--primary-color); font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            Template Selected
+                        </span>
+                        <button type="button" id="change-template-btn" class="btn-secondary" onclick="goBackToTemplates()" style="display: flex; gap: 6px; align-items: center;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            Change Template
+                        </button>
+                    </div>
+
+                    <div class="container" id="main-content">
+                        
+                        <div class="card">
+                            <h2 class="heading">Personal Information</h2>
+                            <div class="blueprint-entry">
+                                <div style="margin-bottom: 24px;">
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                                        <span style="color: var(--on-surface-variant); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Profile Photo (Optional)</span>
+                                        <span class="btn-secondary" style="padding: 4px 10px; font-size: 11px;">📁 Upload</span>
+                                        <input type="file" id="photo-upload" accept="image/*" style="display: none;" />
+                                    </label>
+                                    <div id="photo-upload-status" style="font-size: 10px; color: var(--on-surface-variant); margin-top: 4px; opacity: 0.6;">No file chosen</div>
+                                    <div id="photo-preview" style="margin-top: 10px; max-width: 80px; border-radius: 4px; overflow: hidden;"></div>
+                                </div>
+                                <div class="material-input">
+                                    <input type="text" id="full-name" placeholder=" " autocomplete="off">
+                                    <label for="full-name">Full Name</label>
+                                </div>
+                                <div class="material-input">
+                                    <input type="text" id="location" placeholder=" " autocomplete="off">
+                                    <label for="location">Location (City, Country)</label>
+                                </div>
+                            </div>
                         </div>
-                        <button type="button" id="change-template-btn" class="change-template-btn" onclick="goBackToTemplates()">🔄 Change Template</button>
-                    </div>
-                    <h2>Personal Information</h2>
-                    <div class="input-group-full">
-                        <label for="photo-upload" style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                            <span style="font-weight: 600; font-size: 15px;">Profile Photo (Optional)</span>
-                            <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 8px 18px; border-radius: 6px; font-size: 13px; color: white; border: none; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.5)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)'; this.style.transform='translateY(0)';">
-                                <input type="file" id="photo-upload" accept="image/*" style="display: none;" />
-                                <span style="cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="document.getElementById('photo-upload').click(); return false;">📁 Choose File</span>
-                            </span>
-                            <span id="photo-upload-status" style="color: #999; font-size: 13px; font-weight: 500;">No file chosen</span>
-                        </label>
-                        <small style="color: #888; display: block; margin-top: 6px;">📸 Upload a professional photo (JPG, PNG, GIF)</small>
-                        <div id="photo-preview" style="margin-top: 10px; max-width: 150px;"></div>
-                    </div>
-                    <div class="input-group-full">
-                        <label for="full-name">Full Name</label>
-                        <input type="text" id="full-name" placeholder="Your Name">
-                    </div>
-                    <div class="input-group-full">
-                        <label for="location">Location</label>
-                        <input type="text" id="location" placeholder="City, Country">
-                    </div>
-                    
-                    <h2>Contact Information</h2>
-                    <div class="input-grid three-col">
-                        <div class="input-group-full">
-                            <label for="phone">Phone Number</label>
-                            <input type="tel" id="phone" placeholder="e.g., +91 1234567890">
+
+                        <div class="card">
+                            <h2 class="heading">Contact Information</h2>
+                            <div class="blueprint-entry">
+                                <div class="material-input">
+                                    <input type="tel" id="phone" placeholder=" " autocomplete="off">
+                                    <label for="phone">Phone Number</label>
+                                </div>
+                                <div class="material-input">
+                                    <input type="email" id="email" placeholder=" " autocomplete="off">
+                                    <label for="email">Email Address</label>
+                                </div>
+                                <div class="material-input">
+                                    <input type="url" id="linkedin" placeholder=" " autocomplete="off">
+                                    <label for="linkedin">LinkedIn URL</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="input-group-full">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" placeholder="your.email@example.com">
+
+                        <div class="card" style="grid-column: 1 / -1;">
+                            <h2 class="heading">Career Objective</h2>
+                            <div class="blueprint-entry">
+                                <div class="material-input">
+                                    <textarea id="objective" placeholder=" " rows="3"></textarea>
+                                    <label for="objective">Summary of your professional goals...</label>
+                                </div>
+                                <button type="button" id="ai-improve-objective" class="btn-secondary" style="display: none; align-self: flex-start; margin-top: 8px;">✨ AI Improve Objective</button>
+                            </div>
                         </div>
-                        <div class="input-group-full">
-                            <label for="linkedin">LinkedIn URL</label>
-                            <input type="url" id="linkedin" placeholder="linkedin.com/in/yourname">
+                        
+                        <div class="card">
+                            <h2 class="heading">Languages & Hobbies</h2>
+                            <div class="blueprint-entry">
+                                <div class="material-input">
+                                    <textarea id="languages" placeholder=" " rows="2"></textarea>
+                                    <label for="languages">Languages (comma separated)</label>
+                                </div>
+                                <div class="material-input">
+                                    <textarea id="hobbies" placeholder=" " rows="2"></textarea>
+                                    <label for="hobbies">Hobbies (comma separated)</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h2 class="heading">Skills</h2>
+                            <div class="blueprint-entry">
+                                <div class="material-input">
+                                    <textarea id="skills" placeholder=" " rows="3"></textarea>
+                                    <label for="skills">Key Skills (comma separated)</label>
+                                </div>
+                                <button type="button" id="ai-generate-skills" class="btn-secondary" style="display: none; align-self: flex-start; margin-top: 8px;">💡 AI Generate Skills</button>
+                            </div>
                         </div>
                     </div>
-                    
-                    <h2>Career Objective</h2>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <textarea id="objective" placeholder="Your career objective..." rows="3" style="flex: 1;"></textarea>
-                        <div style="display: flex; flex-direction: column; gap: 5px;">
-                            <button type="button" id="ai-improve-objective" class="submit-btn" style="padding: 8px 12px; font-size: 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: none;">✨ Improve</button>
-                            <small style="text-align: center; font-size: 10px; color: #666;">AI Tools</small>
-                        </div>
-                    </div>
-                    
-                    <h2>Languages</h2>
-                    <div class="input-group-full">
-                        <textarea id="languages" placeholder="List languages you speak (e.g., Hindi, English, Marathi)" rows="2"></textarea>
-                        <small>Add languages you are fluent in</small>
-                    </div>
-                    
-                    <h2>Hobbies & Interests</h2>
-                    <div class="input-group-full">
-                        <textarea id="hobbies" placeholder="List your hobbies and interests (comma separated)" rows="2"></textarea>
-                        <small>Add personal hobbies to make your resume stand out</small>
-                    </div>
-                    
-                    <!-- Skills AI Tools -->
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start;" id="skills-ai-section" style="display: none;">
-                        <button type="button" id="ai-generate-skills" class="submit-btn" style="padding: 8px 12px; font-size: 12px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); margin-top: 10px; display: none;">💡 Generate Skills</button>
-                    </div>
-                    
+
                     <div id="draggable-sections" class="draggable-sections-container">
-                        <!-- Education -->
-                        <div class="draggable-section" data-section="education">
-                            <div class="section-handle">☰ Education</div>
-                            <h2>Education</h2>
+                        
+                        <div class="draggable-section card" data-section="education">
+                            <h2 class="heading">Education <span class="section-handle">☰ Move</span></h2>
                             <div id="education-section">
                                 <div class="education-entry">
-                                    <div class="input-with-label">
+                                    <div class="material-input">
+                                        <input type="text" class="institution" placeholder=" " autocomplete="off">
                                         <label>Institution Name</label>
-                                        <input type="text" class="institution" placeholder="e.g., Mumbai University">
                                     </div>
-                                    <div class="input-with-label">
+                                    <div class="material-input">
+                                        <input type="text" class="degree" placeholder=" " autocomplete="off">
                                         <label>Degree</label>
-                                        <input type="text" class="degree" placeholder="e.g., Bachelor of Engineering">
                                     </div>
-                                    <div class="input-with-label">
-                                        <label>Grade/CGPA</label>
-                                        <input type="text" class="grade" placeholder="e.g., 8.5 CGPA or 85%">
-                                    </div>
-                                    <div class="input-with-label">
-                                        <label>Year</label>
-                                        <input type="text" class="year" placeholder="e.g., 2020-2024">
+                                    <div class="input-row">
+                                        <div class="material-input">
+                                            <input type="text" class="grade" placeholder=" " autocomplete="off">
+                                            <label>Grade/CGPA</label>
+                                        </div>
+                                        <div class="material-input">
+                                            <input type="text" class="year" placeholder=" " autocomplete="off">
+                                            <label>Year</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" id="add-education" class="add-btn">+ Add Education</button>
+                            <button id="add-education" class="add-btn" type="button" style="margin-top: 8px;">+ Add Education</button>
                         </div>
-                        
-                        <!-- Skills -->
-                        <div class="draggable-section" data-section="skills">
-                            <div class="section-handle">☰ Skills</div>
-                            <h2>Skills</h2>
-                            <div class="input-with-label">
-                                <label>Your Skills (comma separated)</label>
-                                <textarea id="skills" placeholder="e.g., JavaScript, React, Node.js, Python, Data Analysis" rows="3"></textarea>
-                            </div>
-                        </div>
-                        
-                        <!-- Experience -->
-                        <div class="draggable-section" data-section="experience">
-                            <div class="section-handle">☰ Experience</div>
-                            <h2>Experience</h2>
+
+                        <div class="draggable-section card" data-section="experience">
+                            <h2 class="heading">Experience <span class="section-handle">☰ Move</span></h2>
                             <div id="experience-section">
                                 <div class="experience-entry">
-                                    <div class="input-with-label">
+                                    <div class="material-input">
+                                        <input type="text" class="job-title" placeholder=" " autocomplete="off">
                                         <label>Job Title</label>
-                                        <input type="text" class="job-title" placeholder="e.g., Software Engineer">
                                     </div>
-                                    <div class="input-with-label">
+                                    <div class="material-input">
+                                        <input type="text" class="company" placeholder=" " autocomplete="off">
                                         <label>Company</label>
-                                        <input type="text" class="company" placeholder="e.g., Google India">
                                     </div>
-                                    <div class="input-with-label">
-                                        <label>Duration</label>
-                                        <input type="text" class="duration" placeholder="e.g., Jan 2022 - Present">
-                                    </div>
-                                    <div class="input-with-label">
-                                        <label>Description</label>
-                                        <textarea class="job-description" placeholder="Describe your responsibilities and achievements" rows="2"></textarea>
+                                    <div class="material-input">
+                                        <textarea class="job-description" placeholder=" " rows="3"></textarea>
+                                        <label>Job Description and Achievements...</label>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" id="add-experience" class="add-btn">+ Add Experience</button>
+                            <button id="add-experience" class="add-btn" type="button" style="margin-top: 8px;">+ Add Experience</button>
                         </div>
-                        
-                        <!-- Projects -->
-                        <div class="draggable-section" data-section="projects">
-                            <div class="section-handle">☰ Projects</div>
-                            <h2>Projects</h2>
+
+                        <div class="draggable-section card" data-section="projects">
+                            <h2 class="heading">Projects <span class="section-handle">☰ Move</span></h2>
                             <div id="projects-section">
                                 <div class="project-entry">
-                                    <div class="input-with-label">
+                                    <div class="material-input">
+                                        <input type="text" class="project-title" placeholder=" " autocomplete="off">
                                         <label>Project Title</label>
-                                        <input type="text" class="project-title" placeholder="e.g., E-commerce Website">
                                     </div>
-                                    <div class="input-with-label">
+                                    <div class="material-input">
+                                        <textarea class="project-description" placeholder=" " rows="2"></textarea>
                                         <label>Project Description</label>
-                                        <textarea class="project-description" placeholder="Describe your project, technologies used, and outcomes" rows="2"></textarea>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" id="add-project" class="add-btn">+ Add Project</button>
+                            <button id="add-project" class="add-btn" type="button" style="margin-top: 8px;">+ Add Project</button>
                         </div>
-                        
-                        <!-- Achievements -->
-                        <div class="draggable-section" data-section="achievements">
-                            <div class="section-handle">☰ Achievements</div>
-                            <h2>Achievements</h2>
-                            <div id="achievements-section">
+
+                        <div class="draggable-section card" data-section="achievements">
+                            <h2 class="heading">Achievements & Certifications <span class="section-handle">☰ Move</span></h2>
+                            <div id="achievement-section">
                                 <div class="achievement-entry">
-                                    <div class="input-with-label">
+                                    <div class="material-input">
+                                        <input type="text" class="achievement" placeholder=" " autocomplete="off">
                                         <label>Achievement or Certification</label>
-                                        <input type="text" class="achievement" placeholder="e.g., Certified AWS Solutions Architect">
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" id="add-achievement" class="add-btn">+ Add Achievement</button>
+                            <button id="add-achievement" class="add-btn" type="button" style="margin-top: 8px;">+ Add Achievement</button>
                         </div>
+
                     </div>
+
+                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; margin-bottom: 80px;">
+                        <div class="format-selector" style="display: flex; gap: 8px; background: var(--surface-container-high); padding: 6px; border-radius: 10px; border: 1px solid var(--border-color);">
+                            <button type="button" id="select-pdf" class="btn-secondary active" style="padding: 8px 20px; font-size: 12px; border: none !important;">PDF</button>
+                            <button type="button" id="select-docx" class="btn-secondary" style="padding: 8px 20px; font-size: 12px; border: none !important;">DOCX</button>
+                            <input type="hidden" id="export-format" value="pdf">
+                        </div>
+                        <button type="button" id="generate-btn" class="btn-primary">⚡ Download Resume Architecture</button>
                     </div>
-                    <!-- End of form-sections -->
-                    
-                    <button type="submit" class="submit-btn">📥 Download as PDF</button>
-                </form>
+
+                </div>
             </div>
         </div>
-        
-        <!-- Template Preview Modal -->
-        <div id="preview-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Template Preview</h2>
-                <p>This is how your resume will look with this template:</p>
-                <div id="template-preview-content"></div>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-        <footer class="site-footer">
-            <div class="footer-content">
-                <p class="footer-text">Made By <strong>Gous Khan</strong></p>
-                <p class="footer-copyright">&copy; 2025 Resume Builder. All rights reserved.</p>
-            </div>
-        </footer>
-        
-        <!-- PDF Libraries -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-        <script src="simple-script.js"></script>
-    </body>
-    </html>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.1.0/build/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="simple-script.js?v=6"></script>
+</body>
+</html>

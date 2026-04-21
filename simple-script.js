@@ -244,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDraggableSections();
     setupAutosave();
     setupChangeTemplateButton();
+    setupFormatSelector();
+    setupDownloadButton();
 });
 
 // Render templates with improved selected badge
@@ -518,11 +520,50 @@ function applyTheme(mode) {
 }
 
 function setupFormHandlers() {
+    // Legacy form submit - redirecting to new download logic
     if (elements.resumeForm) {
         elements.resumeForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            downloadResume();
+            handleDownload();
         });
+    }
+}
+
+function setupFormatSelector() {
+    const pdfBtn = document.getElementById('select-pdf');
+    const docxBtn = document.getElementById('select-docx');
+    const formatInput = document.getElementById('export-format');
+
+    if (pdfBtn && docxBtn && formatInput) {
+        pdfBtn.addEventListener('click', () => {
+            pdfBtn.classList.add('active');
+            docxBtn.classList.remove('active');
+            formatInput.value = 'pdf';
+        });
+
+        docxBtn.addEventListener('click', () => {
+            docxBtn.classList.add('active');
+            pdfBtn.classList.remove('active');
+            formatInput.value = 'docx';
+        });
+    }
+}
+
+function setupDownloadButton() {
+    const downloadBtn = document.getElementById('generate-btn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', () => {
+            handleDownload();
+        });
+    }
+}
+
+function handleDownload() {
+    const format = document.getElementById('export-format').value;
+    if (format === 'docx') {
+        downloadDOCX();
+    } else {
+        downloadResume();
     }
 }
 
@@ -538,23 +579,25 @@ function setupDynamicFields() {
             const entry = document.createElement('div');
             entry.className = 'education-entry';
             entry.innerHTML = `
-                <div class="input-with-label">
+                <div class="material-input">
+                    <input type="text" class="institution" placeholder=" " autocomplete="off">
                     <label>Institution Name</label>
-                    <input type="text" class="institution" placeholder="e.g., Mumbai University">
                 </div>
-                <div class="input-with-label">
+                <div class="material-input">
+                    <input type="text" class="degree" placeholder=" " autocomplete="off">
                     <label>Degree</label>
-                    <input type="text" class="degree" placeholder="e.g., Bachelor of Engineering">
                 </div>
-                <div class="input-with-label">
-                    <label>Grade/CGPA</label>
-                    <input type="text" class="grade" placeholder="e.g., 8.5 CGPA or 85%">
+                <div class="input-row">
+                    <div class="material-input">
+                        <input type="text" class="grade" placeholder=" " autocomplete="off">
+                        <label>Grade/CGPA</label>
+                    </div>
+                    <div class="material-input">
+                        <input type="text" class="year" placeholder=" " autocomplete="off">
+                        <label>Year</label>
+                    </div>
                 </div>
-                <div class="input-with-label">
-                    <label>Year</label>
-                    <input type="text" class="year" placeholder="e.g., 2020-2024">
-                </div>
-                <button type="button" class="remove-btn">Remove</button>
+                <button type="button" class="btn-secondary remove-btn">Remove</button>
             `;
             section.appendChild(entry);
             entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
@@ -567,23 +610,23 @@ function setupDynamicFields() {
             const entry = document.createElement('div');
             entry.className = 'experience-entry';
             entry.innerHTML = `
-                <div class="input-with-label">
+                <div class="material-input">
+                    <input type="text" class="job-title" placeholder=" " autocomplete="off">
                     <label>Job Title</label>
-                    <input type="text" class="job-title" placeholder="e.g., Software Engineer">
                 </div>
-                <div class="input-with-label">
+                <div class="material-input">
+                    <input type="text" class="company" placeholder=" " autocomplete="off">
                     <label>Company</label>
-                    <input type="text" class="company" placeholder="e.g., Google India">
                 </div>
-                <div class="input-with-label">
-                    <label>Duration</label>
-                    <input type="text" class="duration" placeholder="e.g., Jan 2022 - Present">
+                <div class="material-input">
+                    <input type="text" class="duration" placeholder=" " autocomplete="off">
+                    <label>Duration (e.g. Jan 2022 - Present)</label>
                 </div>
-                <div class="input-with-label">
-                    <label>Description</label>
-                    <textarea class="job-description" placeholder="Describe your responsibilities and achievements" rows="2"></textarea>
+                <div class="material-input">
+                    <textarea class="job-description" placeholder=" " rows="3"></textarea>
+                    <label>Job Description and Achievements...</label>
                 </div>
-                <button type="button" class="remove-btn">Remove</button>
+                <button type="button" class="btn-secondary remove-btn">Remove</button>
             `;
             section.appendChild(entry);
             entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
@@ -596,15 +639,15 @@ function setupDynamicFields() {
             const entry = document.createElement('div');
             entry.className = 'project-entry';
             entry.innerHTML = `
-                <div class="input-with-label">
+                <div class="material-input">
+                    <input type="text" class="project-title" placeholder=" " autocomplete="off">
                     <label>Project Title</label>
-                    <input type="text" class="project-title" placeholder="e.g., E-commerce Website">
                 </div>
-                <div class="input-with-label">
+                <div class="material-input">
+                    <textarea class="project-description" placeholder=" " rows="2"></textarea>
                     <label>Project Description</label>
-                    <textarea class="project-description" placeholder="Describe your project, technologies used, and outcomes" rows="2"></textarea>
                 </div>
-                <button type="button" class="remove-btn">Remove</button>
+                <button type="button" class="btn-secondary remove-btn">Remove</button>
             `;
             section.appendChild(entry);
             entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
@@ -617,11 +660,11 @@ function setupDynamicFields() {
             const entry = document.createElement('div');
             entry.className = 'achievement-entry';
             entry.innerHTML = `
-                <div class="input-with-label">
+                <div class="material-input">
+                    <input type="text" class="achievement" placeholder=" " autocomplete="off">
                     <label>Achievement or Certification</label>
-                    <input type="text" class="achievement" placeholder="e.g., Certified AWS Solutions Architect">
                 </div>
-                <button type="button" class="remove-btn">Remove</button>
+                <button type="button" class="btn-secondary remove-btn">Remove</button>
             `;
             section.appendChild(entry);
             entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
@@ -1467,4 +1510,100 @@ function downloadResumeFallback(data) {
 
     doc.save(`${data.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
     alert('✅ Resume downloaded successfully!');
+}
+function downloadDOCX() {
+    const data = collectResumeData();
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, BorderStyle, AlignmentType } = window.docx;
+
+    try {
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: [
+                    // Header
+                    new Paragraph({
+                        text: data.fullName.toUpperCase(),
+                        heading: HeadingLevel.HEADING_1,
+                        alignment: AlignmentType.CENTER,
+                    }),
+                    new Paragraph({
+                        text: `${data.location} | ${data.phone} | ${data.email}`,
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 },
+                    }),
+                    
+                    // Objective
+                    ...(data.objective ? [
+                        new Paragraph({ text: "PROFESSIONAL OBJECTIVE", heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({ text: data.objective, spacing: { after: 200 } })
+                    ] : []),
+
+                    // Education
+                    ...(data.education.length > 0 ? [
+                        new Paragraph({ text: "EDUCATION", heading: HeadingLevel.HEADING_2 }),
+                        ...data.education.flatMap(edu => [
+                            new Paragraph({
+                                children: [
+                                    new TextRun({ text: edu.institution, bold: true }),
+                                ]
+                            }),
+                            new Paragraph({
+                                text: `${edu.degree} | ${edu.grade} (${edu.year})`,
+                                spacing: { after: 120 }
+                            })
+                        ])
+                    ] : []),
+
+                    // Experience
+                    ...(data.experience.length > 0 ? [
+                        new Paragraph({ text: "EXPERIENCE", heading: HeadingLevel.HEADING_2 }),
+                        ...data.experience.flatMap(exp => [
+                            new Paragraph({
+                                children: [
+                                    new TextRun({ text: exp.title, bold: true }),
+                                    new TextRun({ text: ` at ${exp.company}`, bold: true }),
+                                ]
+                            }),
+                            new Paragraph({ text: exp.duration, italic: true }),
+                            new Paragraph({
+                                text: exp.description,
+                                spacing: { after: 200 }
+                            })
+                        ])
+                    ] : []),
+
+                    // Skills
+                    ...(data.skills.length > 0 ? [
+                        new Paragraph({ text: "SKILLS", heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({
+                            text: data.skills.join(', '),
+                            spacing: { after: 200 }
+                        })
+                    ] : []),
+
+                    // Languages
+                    ...(data.languages.length > 0 ? [
+                        new Paragraph({ text: "LANGUAGES", heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({
+                            text: data.languages.join(', '),
+                            spacing: { after: 200 }
+                        })
+                    ] : []),
+                ],
+            }],
+        });
+
+        Packer.toBlob(doc).then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${data.fullName.replace(/\s+/g, '_')}_Resume.docx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            alert('✅ Resume downloaded successfully (DOCX)!');
+        });
+    } catch (error) {
+        console.error('DOCX generation error:', error);
+        alert('Error generating DOCX: ' + error.message);
+    }
 }

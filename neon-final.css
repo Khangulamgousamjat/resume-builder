@@ -1,0 +1,284 @@
+/* 
+ * NEON DARK THEME: THE KINETIC BLUEPRINT
+ * Optimized for high-gloss futuristic UI with aggressive neon accents.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700;900&display=swap');
+
+:root {
+    /* Kinetic Blueprint Tokens */
+    --surface: #0e0e0e;
+    --surface-container-low: #131313;
+    --surface-container-high: #201f1f;
+    --surface-container-highest: rgba(38, 38, 38, 0.8);
+    --surface-container-lowest: #000000;
+    
+    --primary-color: #afffd1; /* Kinetic Primary */
+    --primary-container: #00ffaa; /* Neon Mint */
+    --secondary-color: #7799ff; /* Electric Blue */
+    --on-surface-variant: #adaaaa;
+    --text-color: #ffffff;
+    
+    --bg-color: var(--surface);
+    --card-bg: var(--surface-container-low);
+    --border-color: #333333;
+    --outline: #444444;
+    
+    /* ADDED PERMANENT NEON GLOW */
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 10px 40px rgba(119, 153, 255, 0.1);
+    --primary-glow: 0 0 10px rgba(175, 255, 209, 0.3);
+}
+
+body.dark-mode {
+    background-color: var(--surface) !important;
+    color: var(--text-color) !important;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1, h2, h3, .heading, .header h1, .header p {
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+/* --- THEME TOGGLE WRAPPER --- */
+.theme-switch-wrapper {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 100;
+}
+
+.switch { font-size: 17px; position: relative; display: inline-block; width: 4em; height: 2.2em; border-radius: 30px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a2a2a; transition: 0.4s; border-radius: 30px; overflow: hidden; }
+.slider:before { position: absolute; content: ""; height: 1.2em; width: 1.2em; border-radius: 20px; left: 0.5em; bottom: 0.5em; transition: 0.4s; box-shadow: inset 8px -4px 0px 0px #fff; }
+.switch input:checked + .slider { background-color: var(--primary-container); }
+.switch input:checked + .slider:before { transform: translateX(1.8em); box-shadow: inset 15px -4px 0px 15px #ffcf48; }
+
+.header {
+    margin-top: 64px;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 3.5rem !important; /* display-lg */
+    margin: 0;
+    color: var(--text-color);
+    font-weight: 700;
+    letter-spacing: -2px !important;
+    text-transform: uppercase;
+}
+
+.header p {
+    color: var(--primary-color) !important;
+    font-weight: 500;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    opacity: 0.8;
+}
+
+/* --- APP LAYOUT --- */
+#app { width: 100%; display: flex; justify-content: center; }
+.container, .draggable-sections-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 900px;
+    width: 95%;
+    margin: 0 auto 48px auto;
+}
+
+/* --- MATERIAL CARDS (KINTEIC BLUEPRINT) --- */
+.card, .form-container, .preview-container, .modal-content, .template-card {
+    background-color: var(--surface-container-low) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 32px !important;
+    box-shadow: var(--card-shadow) !important; /* APPLIED NEON GLOW HERE */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 32px !important; /* Ensure enough space for the shadow to be seen */
+}
+
+.card:hover, .template-card:hover {
+    transform: translateY(-4px) scale(1.01) !important;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(119, 153, 255, 0.15) !important;
+}
+
+.card .heading, .form-container h2 {
+    margin: 0 0 28px 0 !important;
+    color: var(--text-color) !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    border-bottom: none !important;
+    letter-spacing: -0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-handle { 
+    background: var(--surface-container-high) !important;
+    color: var(--secondary-color) !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-weight: 700 !important;
+    cursor: grab;
+    border: 1px solid rgba(119, 153, 255, 0.1) !important;
+}
+
+/* --- UNIFIED MATERIAL INPUTS (RECESSED NEON LOOK) --- */
+.material-input {
+    position: relative;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.material-input input, .material-input textarea {
+    width: 100% !important;
+    padding: 24px 16px 12px !important;
+    background: var(--surface-container-lowest) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    color: var(--text-color) !important;
+    outline: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-sizing: border-box !important;
+    box-shadow: inset 0px 2px 8px rgba(0,0,0,0.8) !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+.material-input input:focus, .material-input textarea:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: inset 0px 2px 8px rgba(0,0,0,0.8), 0 0 12px rgba(175, 255, 209, 0.15) !important;
+}
+
+.material-input label {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: var(--on-surface-variant) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    padding: 0 4px;
+}
+
+.material-input textarea ~ label {
+    top: 24px;
+}
+
+.material-input input:focus ~ label,
+.material-input input:not(:placeholder-shown) ~ label,
+.material-input textarea:focus ~ label,
+.material-input textarea:not(:placeholder-shown) ~ label {
+    top: 0 !important;
+    font-size: 10px !important;
+    color: var(--primary-color) !important;
+    transform: translateY(-50%);
+    background: var(--surface-container-high) !important; /* MATCH NESTED BACKGROUND */
+}
+
+/* --- CONSISTENCY FOR ENTRIES (Education, Experience, Blueprint-entry, etc.) --- */
+.education-entry, .experience-entry, .project-entry, .achievement-entry, .blueprint-entry {
+    background: var(--surface-container-high) !important;
+    border: none !important;
+    border-left: 3px solid var(--primary-color) !important;
+    border-radius: 8px !important;
+    padding: 24px !important;
+    margin-bottom: 32px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.education-entry:hover, .experience-entry:hover, .blueprint-entry:hover {
+    background: var(--surface-container-highest) !important;
+    transform: translateX(4px) !important;
+}
+
+/* --- BUTTONS --- */
+.btn-primary, #generate-btn {
+    background: radial-gradient(circle at top left, var(--primary-color), var(--primary-container)) !important;
+    color: var(--surface) !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 16px 48px !important;
+    box-shadow: 0 0 20px rgba(0, 255, 170, 0.2) !important;
+    cursor: pointer !important;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 170, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+.btn-secondary, .add-btn, #change-template-btn, .remove-btn {
+    background: transparent !important;
+    color: var(--primary-color) !important;
+    border: 1px solid rgba(175, 255, 209, 0.3) !important;
+    padding: 10px 24px !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 11px !important;
+}
+
+.btn-secondary:hover {
+    background: rgba(175, 255, 209, 0.05) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* --- LOADER --- */
+#loader-screen { background: rgba(0,0,0,0.9) !important; backdrop-filter: blur(10px) !important; }
+.spinner { border-color: var(--surface-container-high) !important; border-top-color: var(--primary-color) !important; }
+
+/* --- FORMAT SELECTOR --- */
+.format-selector button {
+    transition: all 0.2s ease !important;
+}
+
+.format-selector button.active {
+    background: var(--primary-color) !important;
+    color: var(--surface) !important;
+    box-shadow: 0 0 15px rgba(175, 255, 209, 0.2) !important;
+}
+
+/* Grid Helpers */
+.input-row, .input-grid { display: flex; gap: 16px; width: 100%; margin-bottom: 8px; }
+.input-row > .material-input, .input-grid > .material-input { flex: 1; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--surface-container-high); border-radius: 4px; }
