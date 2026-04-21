@@ -362,7 +362,7 @@ function selectTemplate(templateId) {
     const formSections = document.getElementById('form-sections');
 
     if (formSections) {
-        formSections.style.display = 'block';
+        formSections.style.display = 'flex';
 
         // Hide template selection elements
         if (templateSection) templateSection.style.display = 'none';
