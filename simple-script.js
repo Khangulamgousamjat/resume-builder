@@ -1547,25 +1547,84 @@ function downloadResumeFallback(data) {
     doc.save(`${data.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
     alert('✅ Resume downloaded successfully!');
 }
-function downloadDOCX() {
-    const data = collectResumeData();
-    
-    console.log('Attempting DOCX download...', { 
-        windowDocx: typeof window.docx, 
-        globalDocx: typeof docx 
-    });
+// ─── DOCX LIBRARY LOADER WITH FALLBACK ──────────────────────────────────────
+// Tries multiple CDNs in order. Resolves with the loaded lib or rejects.
+function loadDocxLibrary() {
+    return new Promise((resolve, reject) => {
+        // Already loaded?
+        const existing = window.docx || (typeof docx !== 'undefined' ? docx : null);
+        if (existing && (existing.Document || existing.Packer)) {
+            resolve(existing);
+            return;
+        }
 
-    // Support for both window.docx and docx global (v7.1.0 stability)
-    const docxLib = window.docx || (typeof docx !== 'undefined' ? docx : null);
-    
-    if (!docxLib || (!docxLib.Document && !docxLib.Packer)) {
-        alert('❌ Error: DOCX library (docx.js) is not fully loaded. Please check your internet connection and reload the page.');
-        console.error('DOCX library missing or incomplete:', docxLib);
+        // CDN sources in priority order
+        const CDN_URLS = [
+            'https://cdn.jsdelivr.net/npm/docx@7.1.0/build/index.js',
+            'https://unpkg.com/docx@7.1.0/build/index.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.0/docx.min.js'
+        ];
+
+        let attempt = 0;
+
+        function tryNext() {
+            if (attempt >= CDN_URLS.length) {
+                reject(new Error('All CDN sources for docx.js failed to load.'));
+                return;
+            }
+
+            const url = CDN_URLS[attempt++];
+            console.log('[DOCX] Trying CDN:', url);
+
+            const script = document.createElement('script');
+            script.src = url;
+
+            script.onload = () => {
+                const lib = window.docx || (typeof docx !== 'undefined' ? docx : null);
+                if (lib && (lib.Packer || lib.Document)) {
+                    console.log('[DOCX] Library loaded from:', url);
+                    resolve(lib);
+                } else {
+                    console.warn('[DOCX] Script loaded but library not found, trying next...');
+                    tryNext();
+                }
+            };
+
+            script.onerror = () => {
+                console.warn('[DOCX] Failed to load from:', url);
+                document.head.removeChild(script);
+                tryNext();
+            };
+
+            document.head.appendChild(script);
+        }
+
+        tryNext();
+    });
+}
+
+// ─── DOWNLOAD DOCX ────────────────────────────────────────────────────────────
+async function downloadDOCX() {
+    const data = collectResumeData();
+
+    // Show loading state on button
+    const btn = document.getElementById('download-btn');
+    const originalText = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = '⏳ Preparing DOCX...'; btn.disabled = true; }
+
+    let docxLib;
+    try {
+        docxLib = await loadDocxLibrary();
+    } catch (err) {
+        console.error('[DOCX] Library load failed:', err);
+        if (btn) { btn.textContent = originalText; btn.disabled = false; }
+        alert('❌ Could not load the DOCX library from any CDN.\nPlease check your internet connection and try again.');
         return;
     }
 
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docxLib;
+    if (btn) { btn.textContent = originalText; btn.disabled = false; }
 
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docxLib;
 
     try {
         const doc = new Document({
@@ -1583,88 +1642,89 @@ function downloadDOCX() {
                         alignment: AlignmentType.CENTER,
                         spacing: { after: 200 },
                     }),
-                    
+
                     // Objective
                     ...(data.objective ? [
-                        new Paragraph({ text: "PROFESSIONAL OBJECTIVE", heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({ text: 'PROFESSIONAL OBJECTIVE', heading: HeadingLevel.HEADING_2 }),
                         new Paragraph({ text: data.objective, spacing: { after: 200 } })
                     ] : []),
 
                     // Education
                     ...(data.education.length > 0 ? [
-                        new Paragraph({ text: "EDUCATION", heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({ text: 'EDUCATION', heading: HeadingLevel.HEADING_2 }),
                         ...data.education.flatMap(edu => [
-                            new Paragraph({
-                                children: [
-                                    new TextRun({ text: edu.institution, bold: true }),
-                                ]
-                            }),
-                            new Paragraph({
-                                text: `${edu.degree} | ${edu.grade} (${edu.year})`,
-                                spacing: { after: 120 }
-                            })
+                            new Paragraph({ children: [new TextRun({ text: edu.institution, bold: true })] }),
+                            new Paragraph({ text: `${edu.degree}${edu.grade ? ' | ' + edu.grade : ''}${edu.year ? ' (' + edu.year + ')' : ''}`, spacing: { after: 120 } })
                         ])
                     ] : []),
 
                     // Experience
                     ...(data.experience.length > 0 ? [
-                        new Paragraph({ text: "EXPERIENCE", heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({ text: 'EXPERIENCE', heading: HeadingLevel.HEADING_2 }),
                         ...data.experience.flatMap(exp => [
-                            new Paragraph({
-                                children: [
-                                    new TextRun({ text: exp.title, bold: true }),
-                                    new TextRun({ text: ` at ${exp.company}`, bold: true }),
-                                ]
-                            }),
-                            new Paragraph({ text: exp.duration, italic: true }),
-                            new Paragraph({
-                                text: exp.description,
-                                spacing: { after: 200 }
-                            })
+                            new Paragraph({ children: [new TextRun({ text: exp.title, bold: true }), new TextRun({ text: ` at ${exp.company}`, bold: true })] }),
+                            new Paragraph({ text: exp.duration || '', italics: true }),
+                            new Paragraph({ text: exp.description || '', spacing: { after: 200 } })
                         ])
                     ] : []),
 
                     // Skills
                     ...(data.skills.length > 0 ? [
-                        new Paragraph({ text: "SKILLS", heading: HeadingLevel.HEADING_2 }),
-                        new Paragraph({
-                            text: data.skills.join(', '),
-                            spacing: { after: 200 }
-                        })
+                        new Paragraph({ text: 'SKILLS', heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({ text: data.skills.join(', '), spacing: { after: 200 } })
+                    ] : []),
+
+                    // Projects
+                    ...(data.projects.length > 0 ? [
+                        new Paragraph({ text: 'PROJECTS', heading: HeadingLevel.HEADING_2 }),
+                        ...data.projects.flatMap(proj => [
+                            new Paragraph({ children: [new TextRun({ text: proj.title || '', bold: true })] }),
+                            new Paragraph({ text: proj.description || '', spacing: { after: 200 } })
+                        ])
+                    ] : []),
+
+                    // Achievements
+                    ...(data.achievements.length > 0 ? [
+                        new Paragraph({ text: 'ACHIEVEMENTS', heading: HeadingLevel.HEADING_2 }),
+                        ...data.achievements.map(ach => new Paragraph({ text: '• ' + ach, spacing: { after: 80 } }))
                     ] : []),
 
                     // Languages
-                    ...(data.languages.length > 0 ? [
-                        new Paragraph({ text: "LANGUAGES", heading: HeadingLevel.HEADING_2 }),
-                        new Paragraph({
-                            text: data.languages.join(', '),
-                            spacing: { after: 200 }
-                        })
+                    ...(data.languages && data.languages.length > 0 ? [
+                        new Paragraph({ text: 'LANGUAGES', heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({ text: data.languages.join(', '), spacing: { after: 200 } })
+                    ] : []),
+
+                    // Hobbies
+                    ...(data.hobbies && data.hobbies.length > 0 ? [
+                        new Paragraph({ text: 'HOBBIES & INTERESTS', heading: HeadingLevel.HEADING_2 }),
+                        new Paragraph({ text: data.hobbies.join(', '), spacing: { after: 200 } })
                     ] : []),
                 ],
             }],
         });
 
-        // Generate the document
         Packer.toBlob(doc).then(blob => {
-            console.log('DOCX Blob generated:', blob.size, 'bytes');
+            console.log('[DOCX] Blob generated:', blob.size, 'bytes');
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
+            const a = document.createElement('a');
             a.href = url;
-            a.download = `${data.fullName.replace(/\s+/g, '_')}_Resume_Architecture.docx`;
+            a.download = `${data.fullName.replace(/\s+/g, '_')}_Resume.docx`;
             document.body.appendChild(a);
             a.click();
             setTimeout(() => {
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
             }, 100);
-            alert('✅ Resume Blueprint downloaded successfully (DOCX)!');
+            alert('✅ Resume downloaded successfully as DOCX!');
         }).catch(err => {
-            console.error('Packer error:', err);
-            alert('❌ Packer Error: Could not package the DOCX file.');
+            console.error('[DOCX] Packer error:', err);
+            alert('❌ Failed to package the DOCX file: ' + err.message);
         });
+
     } catch (error) {
-        console.error('DOCX generation error:', error);
-        alert('Error generating DOCX: ' + error.message);
+        console.error('[DOCX] Generation error:', error);
+        alert('❌ Error generating DOCX: ' + error.message);
     }
 }
+
