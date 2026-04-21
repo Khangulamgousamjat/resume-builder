@@ -346,7 +346,7 @@ function renderTemplates() {
     });
 
     if (elements.templateCount) {
-        elements.templateCount.textContent = `Ready Templates`;
+        elements.templateCount.textContent = `${TEMPLATE_LIBRARY.length} BLUEPRINTS AVAILABLE`;
     }
 }
 
@@ -1513,7 +1513,23 @@ function downloadResumeFallback(data) {
 }
 function downloadDOCX() {
     const data = collectResumeData();
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel, BorderStyle, AlignmentType } = window.docx;
+    
+    console.log('Attempting DOCX download...', { 
+        windowDocx: typeof window.docx, 
+        globalDocx: typeof docx 
+    });
+
+    // Support for both window.docx and docx global
+    const docxLib = window.docx || (typeof docx !== 'undefined' ? docx : null);
+    
+    if (!docxLib || !docxLib.Document) {
+        alert('❌ Error: DOCX library (docx.js) is not fully loaded or recognized. Please check your internet connection and reload the page.');
+        console.error('DOCX library missing or incomplete:', docxLib);
+        return;
+    }
+
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docxLib;
+
 
     try {
         const doc = new Document({
