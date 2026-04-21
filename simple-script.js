@@ -1062,11 +1062,25 @@ function loadFromLocalStorage() {
                 const entry = document.createElement('div');
                 entry.className = 'education-entry';
                 entry.innerHTML = `
-                    <input type="text" class="institution" placeholder="Institution Name" value="${edu.institution}">
-                    <input type="text" class="degree" placeholder="Degree" value="${edu.degree}">
-                    <input type="text" class="grade" placeholder="Grade/CGPA" value="${edu.grade}">
-                    <input type="text" class="year" placeholder="Year" value="${edu.year}">
-                    <button type="button" class="remove-btn">Remove</button>
+                    <div class="material-input">
+                        <input type="text" class="institution" placeholder=" " value="${edu.institution || ''}">
+                        <label>Institution Name</label>
+                    </div>
+                    <div class="material-input">
+                        <input type="text" class="degree" placeholder=" " value="${edu.degree || ''}">
+                        <label>Degree</label>
+                    </div>
+                    <div class="input-row">
+                        <div class="material-input">
+                            <input type="text" class="grade" placeholder=" " value="${edu.grade || ''}">
+                            <label>Grade/CGPA</label>
+                        </div>
+                        <div class="material-input">
+                            <input type="text" class="year" placeholder=" " value="${edu.year || ''}">
+                            <label>Year</label>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary remove-btn">Remove</button>
                 `;
                 eduSection.appendChild(entry);
                 entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
@@ -1081,11 +1095,23 @@ function loadFromLocalStorage() {
                 const entry = document.createElement('div');
                 entry.className = 'experience-entry';
                 entry.innerHTML = `
-                    <input type="text" class="job-title" placeholder="Job Title" value="${exp.jobTitle}">
-                    <input type="text" class="company" placeholder="Company" value="${exp.company}">
-                    <input type="text" class="duration" placeholder="Duration" value="${exp.duration}">
-                    <textarea class="job-description" placeholder="Description" rows="2">${exp.description}</textarea>
-                    <button type="button" class="remove-btn">Remove</button>
+                    <div class="material-input">
+                        <input type="text" class="job-title" placeholder=" " value="${exp.jobTitle || exp.title || ''}">
+                        <label>Job Title</label>
+                    </div>
+                    <div class="material-input">
+                        <input type="text" class="company" placeholder=" " value="${exp.company || ''}">
+                        <label>Company</label>
+                    </div>
+                    <div class="material-input">
+                        <input type="text" class="duration" placeholder=" " value="${exp.duration || ''}">
+                        <label>Duration (e.g. Jan 2022 - Present)</label>
+                    </div>
+                    <div class="material-input">
+                        <textarea class="job-description" placeholder=" " rows="3">${exp.description || ''}</textarea>
+                        <label>Job Description and Achievements...</label>
+                    </div>
+                    <button type="button" class="btn-secondary remove-btn">Remove</button>
                 `;
                 expSection.appendChild(entry);
                 entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
@@ -1100,9 +1126,15 @@ function loadFromLocalStorage() {
                 const entry = document.createElement('div');
                 entry.className = 'project-entry';
                 entry.innerHTML = `
-                    <input type="text" class="project-title" placeholder="Project Title" value="${proj.title}">
-                    <textarea class="project-description" placeholder="Project Description" rows="2">${proj.description}</textarea>
-                    <button type="button" class="remove-btn">Remove</button>
+                    <div class="material-input">
+                        <input type="text" class="project-title" placeholder=" " value="${proj.title || ''}">
+                        <label>Project Title</label>
+                    </div>
+                    <div class="material-input">
+                        <textarea class="project-description" placeholder=" " rows="2">${proj.description || ''}</textarea>
+                        <label>Project Description</label>
+                    </div>
+                    <button type="button" class="btn-secondary remove-btn">Remove</button>
                 `;
                 projSection.appendChild(entry);
                 entry.querySelector('.remove-btn').addEventListener('click', () => entry.remove());
