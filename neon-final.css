@@ -113,8 +113,13 @@ h1, h2, h3, .heading, .header h1, .header p {
     width: 100%;
     box-sizing: border-box;
     position: relative;
-    overflow: hidden;
     margin-bottom: 32px !important; /* Ensure enough space for the shadow to be seen */
+}
+
+#template-preview-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .card:hover, .template-card:hover {

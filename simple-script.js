@@ -264,7 +264,7 @@ function renderTemplates() {
 
         card.innerHTML = `
             <div class="template-thumbnail" style="background: ${template.gradient}; height: 320px; border-radius: 12px 12px 0 0; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 16px;">
-                <div style="width: 100%; height: 100%; background: ${template.bodyBg}; border-radius: 6px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); overflow: hidden; font-family: Arial, sans-serif;">
+                <div style="width: 100%; height: 100%; background: ${template.bodyBg}; border-radius: 6px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); font-family: Arial, sans-serif;">
                     <!-- Header -->
                     <div style="text-align: center; padding: 12px 0; border-bottom: 2px solid ${template.accent}; margin-bottom: 10px;">
                         <div style="font-size: 13px; font-weight: 900; color: ${template.headerText || template.textColor}; letter-spacing: 0.5px; margin-bottom: 3px;">ROHIT GURUNATH SHARMA</div>
@@ -493,11 +493,13 @@ function openTemplatePreview(templateId) {
 
     elements.templatePreviewContent.innerHTML = generateResumeHTML(sampleData);
     elements.previewModal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Lock body scroll
 }
 
 function closePreview() {
     if (elements.previewModal) {
         elements.previewModal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore body scroll
     }
 }
 
