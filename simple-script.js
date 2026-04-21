@@ -1611,14 +1611,23 @@ function downloadDOCX() {
             }],
         });
 
+        // Generate the document
         Packer.toBlob(doc).then(blob => {
+            console.log('DOCX Blob generated:', blob.size, 'bytes');
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `${data.fullName.replace(/\s+/g, '_')}_Resume.docx`;
+            a.download = `${data.fullName.replace(/\s+/g, '_')}_Resume_Architecture.docx`;
+            document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
-            alert('✅ Resume downloaded successfully (DOCX)!');
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+            alert('✅ Resume Blueprint downloaded successfully (DOCX)!');
+        }).catch(err => {
+            console.error('Packer error:', err);
+            alert('❌ Packer Error: Could not package the DOCX file.');
         });
     } catch (error) {
         console.error('DOCX generation error:', error);
