@@ -11,8 +11,8 @@ html {
 
 body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #ffffff;
-    color: #1a1a1a;
+    background: transparent; /* Controlled by neon-final.css */
+    color: inherit;          /* Controlled by neon-final.css */
     line-height: 1.6;
     min-height: 100vh;
     margin: 0;
@@ -40,10 +40,10 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    padding: 30px;
+    background: transparent; /* Controlled by neon-final.css */
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
 }
 
 h1 {
@@ -53,9 +53,9 @@ h1 {
 }
 
 h2 {
-    color: #1a1a1a;
+    color: inherit; /* Controlled by neon-final.css */
     margin: 20px 0 10px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
     padding-bottom: 8px;
     font-weight: 600;
 }
@@ -535,14 +535,11 @@ body.dark-mode .form-container textarea::placeholder {
 }
 
 .education-entry, .project-entry, .achievement-entry, .activity-entry, .hobby-entry, .experience-entry {
-    background: #f8f9fa;
+    background: transparent; /* Controlled by neon-final.css */
     padding: 20px;
     margin: 15px 0;
     border-radius: 8px;
-    border-left: 3px solid #3b82f6;
     transition: all 0.3s ease;
-    border: 1px solid #e5e7eb;
-    border-left: 3px solid #3b82f6;
 }
 
 .education-entry:hover, .project-entry:hover, .achievement-entry:hover, .activity-entry:hover, .hobby-entry:hover, .experience-entry:hover {
