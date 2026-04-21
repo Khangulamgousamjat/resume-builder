@@ -392,6 +392,8 @@ h1, h2, h3, h4, .heading {
    ============================================= */
 .education-entry, .experience-entry,
 .project-entry, .achievement-entry, .blueprint-entry {
+    display: flex !important;              /* Force vertical stack */
+    flex-direction: column !important;     /* Always stack inputs top-to-bottom */
     background: var(--surface-container-high) !important;
     border: 1px solid var(--border-color) !important;
     border-left: 3px solid var(--primary-color) !important;
@@ -401,6 +403,7 @@ h1, h2, h3, h4, .heading {
     transition: box-shadow 0.2s ease !important;
     box-sizing: border-box;
     width: 100%;
+    gap: 0;
 }
 
 .education-entry:hover, .experience-entry:hover,
