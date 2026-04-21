@@ -84,9 +84,13 @@ h1, h2, h3, .heading, .header h1, .header p {
 .switch input:checked + .slider:before { transform: translateX(1.8em); box-shadow: inset 15px -4px 0px 15px #ffcf48; }
 
 .header {
-    margin-top: 64px;
+    margin-top: 0;
     margin-bottom: 32px;
     text-align: center;
+    width: 100%;
+    padding: 64px 0;
+    background: var(--surface-container-low);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header h1 {
@@ -113,24 +117,25 @@ h1, h2, h3, .heading, .header h1, .header p {
 .container, .draggable-sections-container {
     display: flex;
     flex-direction: column;
-    gap: 32px;
-    max-width: 900px;
-    width: 95%;
-    margin: 0 auto 48px auto;
+    gap: 0; /* Remove gap between merged sections */
+    max-width: 100%; /* Full Width */
+    width: 100%;
+    margin: 0;
 }
 
-/* --- MATERIAL CARDS (KINTEIC BLUEPRINT) --- */
-.card, .form-container, .preview-container, .modal-content, .template-card {
-    background-color: var(--surface-container-low) !important;
+/* --- FLAT UNIFIED SECTIONS --- */
+.card, .form-container, .preview-container, .template-card {
+    background-color: transparent !important;
     border: none !important;
-    border-radius: 12px !important;
-    padding: 32px !important;
-    box-shadow: var(--card-shadow) !important; /* APPLIED NEON GLOW HERE */
+    border-radius: 0 !important;
+    padding: 32px 10% !important; /* Large horizontal padding for readability on flat surface */
+    box-shadow: none !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     width: 100%;
     box-sizing: border-box;
     position: relative;
-    margin-bottom: 32px !important; /* Ensure enough space for the shadow to be seen */
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid var(--border-color) !important; /* Subtle separator instead of shadow box */
 }
 
 #template-preview-content {
@@ -228,14 +233,14 @@ h1, h2, h3, .heading, .header h1, .header p {
 
 /* --- CONSISTENCY FOR ENTRIES (Education, Experience, Blueprint-entry, etc.) --- */
 .education-entry, .experience-entry, .project-entry, .achievement-entry, .blueprint-entry {
-    background: var(--surface-container-high) !important;
-    border: none !important;
-    border-left: 3px solid var(--primary-color) !important;
-    border-radius: 8px !important;
-    padding: 24px !important;
-    margin-bottom: 32px !important;
+    background: transparent !important;
+    border-top: 1px solid var(--border-color) !important;
+    border-left: 4px solid var(--primary-color) !important;
+    border-radius: 0 !important;
+    padding: 24px 0 !important;
+    margin-bottom: 0 !important;
     transition: all 0.3s ease !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    box-shadow: none !important;
     width: 100%;
     box-sizing: border-box;
 }
