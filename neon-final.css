@@ -4,9 +4,13 @@
  */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;700;900&display=swap');
 
-:root {
     /* Kinetic Blueprint Tokens */
     --surface: #0e0e0e;
+    --text-color: #ffffff;
+    --font-size-base: 18px; /* LARGER MEDIUM FONT */
+    --font-size-h1: 4rem;
+    --font-size-h2: 2.2rem;
+    --font-size-input: 1.1rem;
     --surface-container-low: #131313;
     --surface-container-high: #201f1f;
     --surface-container-highest: rgba(38, 38, 38, 0.8);
@@ -57,6 +61,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: 'Inter', sans-serif;
+    font-size: var(--font-size-base); /* APPLY BASE FONT SIZE */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -187,7 +192,7 @@ h1, h2, h3, .heading, .header h1, .header p {
     background: var(--surface-container-lowest) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
     border-radius: 8px !important;
-    font-size: 16px !important;
+    font-size: var(--font-size-input) !important; /* ENHANCED INPUT FONT */
     color: var(--text-color) !important;
     outline: none !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -235,9 +240,9 @@ h1, h2, h3, .heading, .header h1, .header p {
 .education-entry, .experience-entry, .project-entry, .achievement-entry, .blueprint-entry {
     background: transparent !important;
     border-top: 1px solid var(--border-color) !important;
-    border-left: 4px solid var(--primary-color) !important;
+    border-left: none !important; /* REMOVED GREEN LINE */
     border-radius: 0 !important;
-    padding: 24px 0 !important;
+    padding: 32px 0 !important;
     margin-bottom: 0 !important;
     transition: all 0.3s ease !important;
     box-shadow: none !important;

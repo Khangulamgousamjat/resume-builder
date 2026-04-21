@@ -1521,11 +1521,11 @@ function downloadDOCX() {
         globalDocx: typeof docx 
     });
 
-    // Support for both window.docx and docx global
+    // Support for both window.docx and docx global (v7.1.0 stability)
     const docxLib = window.docx || (typeof docx !== 'undefined' ? docx : null);
     
-    if (!docxLib || !docxLib.Document) {
-        alert('❌ Error: DOCX library (docx.js) is not fully loaded or recognized. Please check your internet connection and reload the page.');
+    if (!docxLib || (!docxLib.Document && !docxLib.Packer)) {
+        alert('❌ Error: DOCX library (docx.js) is not fully loaded. Please check your internet connection and reload the page.');
         console.error('DOCX library missing or incomplete:', docxLib);
         return;
     }
