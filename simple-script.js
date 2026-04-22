@@ -462,31 +462,57 @@ function openTemplatePreview(templateId) {
     const template = TEMPLATE_LOOKUP[templateId];
     if (!template || !elements.templatePreviewContent) return;
 
+    // Sample fallback data (used when the user hasn't filled the form yet)
     const sampleData = {
-        template: templateId,
         fullName: 'Rohit Sharma',
         location: 'Mumbai, INDIA',
         phone: '+91 1234567890',
         email: 'rohitsharma@email.com',
-        linkedin: 'linkedin.com/in/Rohit sharma',
+        linkedin: 'linkedin.com/in/rohitsharma',
         objective: 'Experienced professional seeking a challenging role to leverage skills and expertise.',
         education: [
-            { institution: 'In Wankhede Stedium', degree: 'Has PHd in smashing Sixes and stark', grade: 'GPA 10/10', year: '2000' }
+            { institution: 'In Wankhede Stadium', degree: 'PhD in Smashing Sixes', grade: 'GPA 10/10', year: '2000' }
         ],
         experience: [
-            { title: 'Batter (SIX HITTER )', company: 'BCCI', duration: 'from 2008', description: 'Lead the Team as a captain and won multiple trophies' }
+            { title: 'Batter (SIX HITTER)', company: 'BCCI', duration: 'from 2008', description: 'Led the team as captain and won multiple trophies.' }
         ],
         projects: [
-            { title: '6th mumbai title ', description: 'Developed a successful team that won the championship' }
+            { title: '6th Mumbai Title', description: 'Developed a successful team that won the championship.' }
         ],
-        achievements: ['t20 world cup 2024 and champions trophy 2025', 'Austrelia Official Father'],
-        skills: ['Hit Big Sixes, Has highest Score 264 in odi and most six hitter in the world', 'if play 10 over no one can stop to win the match']
+        achievements: ['T20 World Cup 2024 & Champions Trophy 2025'],
+        skills: ['Hit Big Sixes', 'Team Leadership', 'Championship Winner'],
+        hobbies: [],
+        languages: []
     };
 
-    elements.templatePreviewContent.innerHTML = generateResumeHTML(sampleData);
+    // Collect real user data from the form (if the form sections are visible / data exists)
+    let userData = {};
+    try { userData = collectResumeData(); } catch (e) { /* form not ready yet */ }
+
+    // Merge: prefer real user values; fall back to sample values for empty fields
+    const previewData = {
+        template: templateId,
+        photo: userData.photo || null,          // ← real photo if uploaded
+        fullName:   (userData.fullName  && userData.fullName  !== 'Your Name')     ? userData.fullName  : sampleData.fullName,
+        location:   (userData.location  && userData.location  !== 'City, Country') ? userData.location  : sampleData.location,
+        phone:      (userData.phone     && userData.phone     !== 'Phone Number')  ? userData.phone     : sampleData.phone,
+        email:      (userData.email     && userData.email     !== 'Email Address') ? userData.email     : sampleData.email,
+        linkedin:   userData.linkedin   || sampleData.linkedin,  // ← real LinkedIn
+        objective:  userData.objective  || sampleData.objective,
+        education:  (userData.education  && userData.education.length  > 0) ? userData.education  : sampleData.education,
+        experience: (userData.experience && userData.experience.length > 0) ? userData.experience : sampleData.experience,
+        projects:   (userData.projects   && userData.projects.length   > 0) ? userData.projects   : sampleData.projects,
+        achievements: (userData.achievements && userData.achievements.length > 0) ? userData.achievements : sampleData.achievements,
+        skills:     (userData.skills     && userData.skills.length     > 0) ? userData.skills     : sampleData.skills,
+        hobbies:    userData.hobbies    || sampleData.hobbies,
+        languages:  userData.languages  || sampleData.languages,
+    };
+
+    elements.templatePreviewContent.innerHTML = generateResumeHTML(previewData);
     elements.previewModal.style.display = 'block';
     document.body.style.overflow = 'hidden'; // Lock body scroll
 }
+
 
 function closePreview() {
     if (elements.previewModal) {
@@ -673,30 +699,38 @@ function setupDynamicFields() {
 function setupPhotoUpload() {
     const photoInput = document.getElementById('photo-upload');
     const photoPreview = document.getElementById('photo-preview');
+    const removeBtn = document.getElementById('remove-photo-btn');
+
+    // ── Helper: clear everything ──────────────────────────────────────────────
+    function clearPhoto() {
+        photoData = null;
+        photoInput.value = '';                          // reset file input
+        if (photoPreview) photoPreview.innerHTML = '';
+        const statusSpan = document.getElementById('photo-upload-status');
+        if (statusSpan) statusSpan.textContent = 'No file chosen';
+        if (removeBtn) removeBtn.style.display = 'none';
+        saveToLocalStorage();
+    }
 
     if (photoInput) {
         photoInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             const statusSpan = document.getElementById('photo-upload-status');
-            const chooseFileSpan = document.querySelector('[id="photo-upload"] ~ span')?.previousElementSibling?.querySelector('span');
 
             if (file) {
-                // Check file type
+                // Validate type
                 if (!file.type.startsWith('image/')) {
                     alert('Please upload an image file');
                     return;
                 }
-
-                // Check file size (max 5MB)
+                // Validate size (max 5 MB)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('Image size must be less than 5MB');
                     return;
                 }
 
-                // Update status
                 if (statusSpan) statusSpan.textContent = file.name;
 
-                // Read file as base64
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     photoData = event.target.result;
@@ -705,18 +739,17 @@ function setupPhotoUpload() {
                     if (photoPreview) {
                         photoPreview.innerHTML = `<img src="${photoData}" style="width: 100%; border-radius: 8px; border: 2px solid #ddd;">`;
                     }
+
+                    // Show remove button now that a photo is loaded
+                    if (removeBtn) removeBtn.style.display = 'inline-block';
                 };
                 reader.readAsDataURL(file);
             } else {
-                photoData = null;
-                if (statusSpan) statusSpan.textContent = 'No file chosen';
-                if (photoPreview) {
-                    photoPreview.innerHTML = '';
-                }
+                clearPhoto();
             }
         });
 
-        // Make the file input clickable via the button
+        // Make the label's Upload span trigger the file input
         const chooseBtn = document.querySelector('[id="photo-upload"] ~ span')?.parentElement?.querySelector('span:nth-child(2) span');
         if (chooseBtn) {
             chooseBtn.addEventListener('click', (e) => {
@@ -724,6 +757,13 @@ function setupPhotoUpload() {
                 photoInput.click();
             });
         }
+    }
+
+    // ── Remove button ─────────────────────────────────────────────────────────
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            clearPhoto();
+        });
     }
 }
 
@@ -818,24 +858,29 @@ function generateResumeHTML(data) {
     return `
         <div style="font-family: ${fontFamily}; max-width: 900px; margin: 20px auto; padding: 30px; background: ${template.bodyBg}; color: ${template.textColor}; border-radius: 10px; line-height: 1.4; border: 3px solid ${template.accent}; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-left: 20px; margin-right: 20px;">
             <!-- Header -->
-            <div style="text-align: center; background: ${template.headerBg}; color: ${template.headerText}; padding: 20px; border-radius: 0px; margin-bottom: 20px; border-bottom: 2px solid ${template.accent}; box-shadow: none; position: relative; min-height: 100px;">
-                ${data.photo ? `
-                <div style="position: absolute; top: 10px; right: 20px; width: 80px; height: 100px; border-radius: 8px; overflow: hidden; border: 2px solid ${template.accent}; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                    <img src="${data.photo}" style="width: 100%; height: 100%; object-fit: cover;" />
+            <div style="background: ${template.headerBg}; color: ${template.headerText}; padding: 20px 20px 0 20px; border-radius: 0px; margin-bottom: 0; box-shadow: none;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                    <div style="flex: 1; text-align: center;">
+                        <h1 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -1px; color: ${template.headerText};">${data.fullName}</h1>
+                        <p style="margin: 6px 0 0 0; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: ${template.headerText};">
+                            ${data.location} • ${data.phone} • ${data.email}
+                            ${data.linkedin ? ` • <a href="${data.linkedin}" target="_blank" style="color: ${template.accent}; text-decoration: none; font-weight: bold;">${data.linkedin}</a>` : ''}
+                        </p>
+                    </div>
+                    ${data.photo ? `
+                    <div style="flex-shrink: 0; width: 80px; height: 100px; border-radius: 8px; overflow: hidden; border: 2px solid ${template.accent}; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <img src="${data.photo}" style="width: 100%; height: 100%; object-fit: cover;" />
+                    </div>
+                    ` : `
+                    <div style="flex-shrink: 0; width: 80px; height: 100px; border-radius: 8px; border: 2px dashed ${template.accent}; background: ${template.accent}10; display: flex; align-items: center; justify-content: center; color: ${template.accent}; font-size: 11px; text-align: center; opacity: 0.6;">
+                        📷 Photo<br/>Appears Here
+                    </div>
+                    `}
                 </div>
-                ` : `
-                <div style="position: absolute; top: 10px; right: 20px; width: 80px; height: 100px; border-radius: 8px; border: 2px dashed ${template.accent}; background: ${template.accent}10; display: flex; align-items: center; justify-content: center; color: ${template.accent}; font-size: 11px; text-align: center; opacity: 0.6;">
-                    📷 Photo<br/>Appears Here
-                </div>
-                `}
-                <div style="margin-right: 100px;">
-                    <h1 style="margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -1px; color: ${template.headerText};">${data.fullName}</h1>
-                    <p style="margin: 6px 0 0 0; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: ${template.headerText};">
-                        ${data.location} • ${data.phone} • ${data.email}
-                        ${data.linkedin ? ` • <a href="${data.linkedin}" target="_blank" style="color: ${template.accent}; text-decoration: none; font-weight: bold;">${data.linkedin}</a>` : ''}
-                    </p>
-                </div>
+                <!-- Divider line BELOW both name and photo -->
+                <div style="height: 2px; background: ${template.accent}; margin-top: 16px;"></div>
             </div>
+            <div style="margin-bottom: 20px;"></div>
 
             <!-- Objective -->
             <div style="margin-bottom: 15px;">
@@ -1036,7 +1081,11 @@ function loadFromLocalStorage() {
             if (preview) {
                 preview.innerHTML = `<img src="${photoData}" style="width: 100%; border-radius: 8px; border: 2px solid #ddd;">`;
             }
+            // Show remove button since a photo is already loaded
+            const removeBtn = document.getElementById('remove-photo-btn');
+            if (removeBtn) removeBtn.style.display = 'inline-block';
         }
+
 
         // Restore section order
         if (data.sectionOrder) {
@@ -1606,6 +1655,7 @@ function loadDocxLibrary() {
 // ─── DOWNLOAD DOCX ────────────────────────────────────────────────────────────
 async function downloadDOCX() {
     const data = collectResumeData();
+    const template = TEMPLATE_LOOKUP[data.template] || TEMPLATE_LOOKUP['professional'];
 
     // Show loading state on button
     const btn = document.getElementById('download-btn');
@@ -1624,84 +1674,142 @@ async function downloadDOCX() {
 
     if (btn) { btn.textContent = originalText; btn.disabled = false; }
 
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docxLib;
+    const { Document, Packer, Paragraph, TextRun, AlignmentType, ImageRun, BorderStyle, ShadingType } = docxLib;
+
+    // ── Helper: hex → "RRGGBB" for docx (strips #, uppercases) ──────────────
+    function hexToDocxColor(hex) {
+        return (hex || '#000000').replace('#', '').toUpperCase().padStart(6, '0');
+    }
+    const accentHex   = hexToDocxColor(template.accent);
+    const headerBgHex = hexToDocxColor(template.headerBg  || '#FFFFFF');
+    const headerTxHex = hexToDocxColor(template.headerText || '#000000');
+
+    // ── Helper: section heading with accent color + bottom border ────────────
+    function sectionHeading(text) {
+        return new Paragraph({
+            children: [new TextRun({ text, bold: true, color: accentHex, size: 26 })],
+            spacing: { before: 240, after: 80 },
+            border: {
+                bottom: { color: accentHex, space: 1, style: 'single', size: 6 }
+            }
+        });
+    }
 
     try {
+        // ── Photo: convert base64 → Uint8Array for ImageRun ──────────────────
+        let photoImageRun = null;
+        if (data.photo) {
+            try {
+                const base64Data = data.photo.split(',')[1];
+                const isPng = data.photo.startsWith('data:image/png');
+                const binaryStr = atob(base64Data);
+                const bytes = new Uint8Array(binaryStr.length);
+                for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+                photoImageRun = new ImageRun({
+                    data: bytes.buffer,
+                    transformation: { width: 80, height: 100 },
+                    type: isPng ? 'png' : 'jpg',
+                });
+            } catch (imgErr) {
+                console.warn('[DOCX] Photo embed failed:', imgErr);
+            }
+        }
+
+        // ── Build contact line including LinkedIn ─────────────────────────────
+        const contactParts = [data.location, data.phone, data.email];
+        if (data.linkedin) contactParts.push(data.linkedin);
+        const contactLine = contactParts.filter(Boolean).join('  |  ');
+
+        // ── Header block ──────────────────────────────────────────────────────
+        const headerChildren = [
+            new Paragraph({
+                children: [new TextRun({ text: data.fullName.toUpperCase(), bold: true, size: 52, color: headerTxHex })],
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 80 },
+                shading: { type: 'solid', color: headerBgHex, fill: headerBgHex }
+            }),
+            new Paragraph({
+                children: [new TextRun({ text: contactLine, size: 18, color: headerTxHex })],
+                alignment: AlignmentType.CENTER,
+                spacing: { after: photoImageRun ? 80 : 120 },
+                shading: { type: 'solid', color: headerBgHex, fill: headerBgHex }
+            }),
+        ];
+
+        // Photo right-aligned after contact info
+        if (photoImageRun) {
+            headerChildren.push(new Paragraph({
+                children: [photoImageRun],
+                alignment: AlignmentType.RIGHT,
+                spacing: { after: 120 },
+                shading: { type: 'solid', color: headerBgHex, fill: headerBgHex }
+            }));
+        }
+
+        // Accent divider line below header block
+        headerChildren.push(new Paragraph({
+            text: '',
+            border: { bottom: { color: accentHex, space: 1, style: 'single', size: 12 } },
+            spacing: { after: 200 },
+            shading: { type: 'solid', color: headerBgHex, fill: headerBgHex }
+        }));
+
+        // ── Body sections ─────────────────────────────────────────────────────
+        const bodyChildren = [];
+
+        if (data.objective) {
+            bodyChildren.push(sectionHeading('PROFESSIONAL OBJECTIVE'));
+            bodyChildren.push(new Paragraph({ text: data.objective, spacing: { after: 200 } }));
+        }
+
+        if (data.education.length > 0) {
+            bodyChildren.push(sectionHeading('EDUCATION'));
+            data.education.forEach(edu => {
+                bodyChildren.push(new Paragraph({ children: [new TextRun({ text: edu.institution, bold: true, size: 22 })] }));
+                bodyChildren.push(new Paragraph({ text: [edu.degree, edu.grade, edu.year].filter(Boolean).join(' | '), spacing: { after: 120 } }));
+            });
+        }
+
+        if (data.experience.length > 0) {
+            bodyChildren.push(sectionHeading('EXPERIENCE'));
+            data.experience.forEach(exp => {
+                bodyChildren.push(new Paragraph({ children: [new TextRun({ text: exp.title, bold: true, size: 22 }), new TextRun({ text: ` at ${exp.company}`, bold: true, size: 22 })] }));
+                if (exp.duration) bodyChildren.push(new Paragraph({ children: [new TextRun({ text: exp.duration, italics: true, size: 20 })] }));
+                if (exp.description) bodyChildren.push(new Paragraph({ text: exp.description, spacing: { after: 160 } }));
+            });
+        }
+
+        if (data.skills.length > 0) {
+            bodyChildren.push(sectionHeading('SKILLS'));
+            bodyChildren.push(new Paragraph({ text: data.skills.join('  •  '), spacing: { after: 200 } }));
+        }
+
+        if (data.projects.length > 0) {
+            bodyChildren.push(sectionHeading('PROJECTS'));
+            data.projects.forEach(proj => {
+                bodyChildren.push(new Paragraph({ children: [new TextRun({ text: proj.title || '', bold: true, size: 22 })] }));
+                if (proj.description) bodyChildren.push(new Paragraph({ text: proj.description, spacing: { after: 160 } }));
+            });
+        }
+
+        if (data.achievements.length > 0) {
+            bodyChildren.push(sectionHeading('ACHIEVEMENTS'));
+            data.achievements.forEach(ach => bodyChildren.push(new Paragraph({ text: '• ' + ach, spacing: { after: 80 } })));
+        }
+
+        if (data.languages && data.languages.length > 0) {
+            bodyChildren.push(sectionHeading('LANGUAGES'));
+            bodyChildren.push(new Paragraph({ text: data.languages.join(', '), spacing: { after: 200 } }));
+        }
+
+        if (data.hobbies && data.hobbies.length > 0) {
+            bodyChildren.push(sectionHeading('HOBBIES & INTERESTS'));
+            bodyChildren.push(new Paragraph({ text: data.hobbies.join(', '), spacing: { after: 200 } }));
+        }
+
+        // ── Assemble and trigger download ─────────────────────────────────────
         const doc = new Document({
-            sections: [{
-                properties: {},
-                children: [
-                    // Header
-                    new Paragraph({
-                        text: data.fullName.toUpperCase(),
-                        heading: HeadingLevel.HEADING_1,
-                        alignment: AlignmentType.CENTER,
-                    }),
-                    new Paragraph({
-                        text: `${data.location} | ${data.phone} | ${data.email}`,
-                        alignment: AlignmentType.CENTER,
-                        spacing: { after: 200 },
-                    }),
-
-                    // Objective
-                    ...(data.objective ? [
-                        new Paragraph({ text: 'PROFESSIONAL OBJECTIVE', heading: HeadingLevel.HEADING_2 }),
-                        new Paragraph({ text: data.objective, spacing: { after: 200 } })
-                    ] : []),
-
-                    // Education
-                    ...(data.education.length > 0 ? [
-                        new Paragraph({ text: 'EDUCATION', heading: HeadingLevel.HEADING_2 }),
-                        ...data.education.flatMap(edu => [
-                            new Paragraph({ children: [new TextRun({ text: edu.institution, bold: true })] }),
-                            new Paragraph({ text: `${edu.degree}${edu.grade ? ' | ' + edu.grade : ''}${edu.year ? ' (' + edu.year + ')' : ''}`, spacing: { after: 120 } })
-                        ])
-                    ] : []),
-
-                    // Experience
-                    ...(data.experience.length > 0 ? [
-                        new Paragraph({ text: 'EXPERIENCE', heading: HeadingLevel.HEADING_2 }),
-                        ...data.experience.flatMap(exp => [
-                            new Paragraph({ children: [new TextRun({ text: exp.title, bold: true }), new TextRun({ text: ` at ${exp.company}`, bold: true })] }),
-                            new Paragraph({ text: exp.duration || '', italics: true }),
-                            new Paragraph({ text: exp.description || '', spacing: { after: 200 } })
-                        ])
-                    ] : []),
-
-                    // Skills
-                    ...(data.skills.length > 0 ? [
-                        new Paragraph({ text: 'SKILLS', heading: HeadingLevel.HEADING_2 }),
-                        new Paragraph({ text: data.skills.join(', '), spacing: { after: 200 } })
-                    ] : []),
-
-                    // Projects
-                    ...(data.projects.length > 0 ? [
-                        new Paragraph({ text: 'PROJECTS', heading: HeadingLevel.HEADING_2 }),
-                        ...data.projects.flatMap(proj => [
-                            new Paragraph({ children: [new TextRun({ text: proj.title || '', bold: true })] }),
-                            new Paragraph({ text: proj.description || '', spacing: { after: 200 } })
-                        ])
-                    ] : []),
-
-                    // Achievements
-                    ...(data.achievements.length > 0 ? [
-                        new Paragraph({ text: 'ACHIEVEMENTS', heading: HeadingLevel.HEADING_2 }),
-                        ...data.achievements.map(ach => new Paragraph({ text: '• ' + ach, spacing: { after: 80 } }))
-                    ] : []),
-
-                    // Languages
-                    ...(data.languages && data.languages.length > 0 ? [
-                        new Paragraph({ text: 'LANGUAGES', heading: HeadingLevel.HEADING_2 }),
-                        new Paragraph({ text: data.languages.join(', '), spacing: { after: 200 } })
-                    ] : []),
-
-                    // Hobbies
-                    ...(data.hobbies && data.hobbies.length > 0 ? [
-                        new Paragraph({ text: 'HOBBIES & INTERESTS', heading: HeadingLevel.HEADING_2 }),
-                        new Paragraph({ text: data.hobbies.join(', '), spacing: { after: 200 } })
-                    ] : []),
-                ],
-            }],
+            sections: [{ properties: {}, children: [...headerChildren, ...bodyChildren] }],
         });
 
         Packer.toBlob(doc).then(blob => {
@@ -1712,10 +1820,7 @@ async function downloadDOCX() {
             a.download = `${data.fullName.replace(/\s+/g, '_')}_Resume.docx`;
             document.body.appendChild(a);
             a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
+            setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
             alert('✅ Resume downloaded successfully as DOCX!');
         }).catch(err => {
             console.error('[DOCX] Packer error:', err);
